@@ -1,30 +1,10 @@
 <script>
 export default {
   methods: {
-    async submit(data) {
-      try {
-        await apiCall(data)
-      } catch (inputErrors) {
-        this.$formkit.setErrors(
-          'custom-inputs', 
-          ['There was an error'], 
-          inputErrors
-        )
-      }
+    submitCustomInputs(inputs) {
+      this.$router.push({ name: 'Play', state: { inputs } });
     },
   },
-}
-
-function apiCall(data) {
-  return new Promise((_, reject) => {
-    setTimeout(
-      () =>
-        reject({
-          message: 'Sorry!',
-        }),
-      1000
-    )
-  })
 }
 </script>
 
@@ -33,77 +13,80 @@ function apiCall(data) {
     type="form"
     id="custom-inputs"
     submit-label="Submit"
-    @submit="submit"
-    :actions="false"
+    @submit="submitCustomInputs"
     #default="{ value }"
   >
-    <FormKit
-      type="textarea"
-      name="message"
-      label="Secret Messsage"
-      rows="10"
-      placeholder="Enter a custom message or generate one below."
-      validation="required"
-    />
-    
-    <FormKit
-      type="checkbox"
-      :value="false"
-      name="use_add"
-      label="Use Addition?"
-    />
-    <div class="double" v-if="value.use_add">
+    <div id="message-section">
       <FormKit
-        preserve
-        type="number"
-        name="add_lower"
-        label="Lower Range"
+        type="textarea"
+        name="message"
+        label="Secret Messsage"
+        rows="10"
+        placeholder="Hello world!"
+        validation="required"
+        validation-visibility="submit"
+        :validation-messages="{
+          required: 'Please enter a message!',
+        }"
       />
-      <FormKit
-        preserve
-        type="number"
-        name="add_upper"
-        label="Upper Range"
-      />
+      <!-- TODO: add generate random message button -->
     </div>
-
-    <FormKit
-      type="checkbox"
-      :value="false"
-      name="use_mult"
-      label="Use Multiplication?"
-    />
-    <div class="double" v-if="value.use_mult">
-      <FormKit
-        preserve
-        type="number"
-        name="mult_lower"
-        label="Lower Range"
-      />
-      <FormKit
-        preserve
-        type="number"
-        name="mult_upper"
-        label="Upper Range"
-      />
+    <div id="operations-section">
+      <p>Select at least one operation:</p>
+      <!-- TODO: ensure that at least one is checked -->
+      <div id="operation-checkboxes">
+        <FormKit
+          type="checkbox"
+          :value="false"
+          name="use_add"
+          label="Addition"
+        />
+        <div class="upper-bound" v-if="value.use_add">
+          <FormKit
+            :value="50"
+            type="range"
+            name="add_upper"
+            :label="`Upper bound: ${value.add_upper}`"
+            :min="value.message ? Math.ceil(Math.sqrt(value.message.length)) : 1"
+            max="100"
+          />
+        </div>
+        <FormKit
+          type="checkbox"
+          :value="false"
+          name="use_mult"
+          label="Multiplication"
+        />
+        <div class="upper-bound" v-if="value.use_mult">
+          <FormKit
+            :value="50"
+            type="range"
+            name="mult_upper"
+            :label="`Upper bound: ${value.mult_upper}`"
+            :min="value.message ? Math.ceil(Math.sqrt(value.message.length)) : 1"
+            max="100"
+            :sections-schema="{
+              prefix: 1,
+            }"
+          />
+        </div>
+        
+      </div>
     </div>
-
-    <button @click.stop.prevent="submit()">Button</button>
-    <FormKit
-      type="submit"
-      label="Submit"
-    />
-    
-    <pre wrap>{{ value }}</pre>
+    <!-- <pre wrap>{{ value }}</pre> -->
   </FormKit>
 </template>
 
-<style>
-.double {
-  display: flex;
+<style scoped>
+#message-section {
+  margin-bottom: 20px;
 }
-.double > .formkit-outer {
-  width: 70px;
-  margin-right: 20px
+
+#operations-section {
+  margin-bottom: 30px;
+}
+
+#operations-section > p {
+  margin-bottom: 10px;
 }
 </style>

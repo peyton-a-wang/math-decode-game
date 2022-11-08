@@ -1,7 +1,7 @@
 <script setup>
-import CustomInputs from '../components/CustomInputs.vue'
+import Game from '@/components/Game.vue'
 </script>
 
 <template>
-  <p>Play</p>
+  <Game />
 </template>
